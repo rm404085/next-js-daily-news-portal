@@ -17,7 +17,7 @@ const Navbar = () => {
 
     return (
        <header>
-        <nav className='flex justify-between shadow-2xl items-center'>
+        <nav className='flex justify-between p-4 shadow-2xl items-center'>
             {/* logo */}
 
             <div className='text-xl font-bold'>
