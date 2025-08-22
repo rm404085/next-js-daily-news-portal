@@ -1,22 +1,29 @@
 "use client"
 
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from '../ui/navigation-menu';
 import { Switch } from '../ui/switch';
 import { Button } from '../ui/button';
 
 import { usePathname } from 'next/navigation';
 import MobileMenu from './MobileMenu';
+import { ThemeContext } from '@/context/themeContex';
+
+
+interface ThemeContextType {
+  isDarkMode: boolean;
+  toggleTheme: () => void;
+}
 
 const Navbar = () => {
 
   const pathName = usePathname();
 
-
+const {isDarkMode, toggleTheme}: any =  useContext(ThemeContext)
 
     return (
-       <header>
+       <header className={`py-4 shadow-md ${isDarkMode ? "bg-gray-900 text-white" : ""}`}>
         <nav className='flex justify-between p-4 shadow-2xl items-center'>
             {/* logo */}
 
@@ -91,7 +98,7 @@ const Navbar = () => {
 
             {/* login */}
              <div className="hidden lg:flex items-center space-x-4">
-          <div className="flex items-center">
+          <div onClick={toggleTheme}  className="flex items-center">
             <span className="mr-2">Dark Mode</span>
             <Switch />
           </div>

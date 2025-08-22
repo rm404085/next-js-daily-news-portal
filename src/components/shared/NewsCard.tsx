@@ -5,7 +5,7 @@ import React from 'react';
 import { Button } from '../ui/button';
 
 const NewsCard = ({item}:NewsCardProps) => {
-    console.log(item)
+    // console.log(item)
     return (
         <div className='border p-4 rounded-md shadow-md'>
         <Link href={`/news/${item?._id}`}>
