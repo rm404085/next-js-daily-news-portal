@@ -1,36 +1,68 @@
+// File: src/app/news/[id]/page.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+
 import { NewsItem } from "@/types/news";
 import Image from "next/image";
 
-export const revalidate = 60
-
+// ISR: page revalidates every 60 seconds
+export const revalidate = 60;
 export const dynamicParams = true;
 
-export async function generateStaticParams() {
-    const posts: NewsItem[] = await fetch('https://news-api-next-js-three.vercel.app/api/news').then((res) =>
-      res.json()
-    )
-    return posts.slice(0, 5).map((post) => ({
-      id: String(post._id),
-    }))
+// SSG: generate static params for first 5 posts
+export async function generateStaticParams(): Promise<{ id: string }[]> {
+  const posts: NewsItem[] = await fetch(
+    "https://news-api-next-js-three.vercel.app/api/news"
+  ).then((res) => res.json());
+
+  return posts.slice(0, 5).map((post) => ({
+    id: String(post._id),
+  }));
+}
+// @typescript-eslint/no-explicit-any
+// ✅ Page Component
+export default async function NewsDetailsPage({ params }: any) {
+  const id: string = params.id;
+
+  let post: NewsItem | null = null;
+
+  try {
+    const res = await fetch(
+      `https://news-api-next-js-three.vercel.app/api/news/${id}`,
+      { cache: "no-store" }
+    );
+
+    if (!res.ok) throw new Error("Failed to fetch news");
+
+    post = await res.json();
+  } catch (error) {
+    console.error(error);
+    return (
+      <section className="py-12 text-center">
+        <p className="text-red-500 text-lg">Failed to load news article.</p>
+      </section>
+    );
   }
 
-const NewsDetailsPage =  async ({ params }: { params: { id: string } }) => {
-    const post = await fetch(`https://news-api-next-js-three.vercel.app/api/news/${params.id}`).then(
-        (res) => res.json()
-      )
+  if (!post) {
+    return (
+      <section className="py-12 text-center">
+        <p className="text-gray-500 text-lg">News article not found.</p>
+      </section>
+    );
+  }
+
   return (
     <section className="py-12">
       <article className="max-w-4xl mx-auto p-6 shadow-md border rounded-lg">
         {post?.imageUrl && (
-          <div>
-            <Image
-              src={post?.imageUrl}
-              alt={post?.title}
-              width={800}
-              height={450}
-              className="rounded-md object-cover"
-            />
-          </div>
+          <Image
+            src={post.imageUrl}
+            alt={post.title}
+            width={800}
+            height={450}
+            className="rounded-md object-cover"
+          />
         )}
 
         <div className="my-5">
@@ -55,15 +87,9 @@ const NewsDetailsPage =  async ({ params }: { params: { id: string } }) => {
           ))}
         </div>
 
-        {/* Snippet */}
-        <p className=" mb-2">{post?.snippet}</p>
-
-        {/* Full Description */}
-        <p className=" mb-4">{post?.description}</p>
-        <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Libero, fugit, adipisci commodi ea alias voluptatibus consequuntur neque nulla ex dicta reiciendis cupiditate quisquam quae. Vitae provident fugit officia fuga ipsam! Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam laboriosam perspiciatis ad labore repudiandae quis, accusamus inventore. Eius aperiam obcaecati molestias possimus nulla saepe reprehenderit rerum voluptas veritatis? Expedita, sed?</p>
+        <p className="mb-2">{post?.snippet}</p>
+        <p className="mb-4">{post?.description}</p>
       </article>
     </section>
-  )
+  );
 }
-
-export default NewsDetailsPage
